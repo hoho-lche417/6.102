@@ -276,3 +276,14 @@ describe('generatePattern', () => {
 //     assertClose(distance({x: -3, y: 0}, {x: 0, y: -4}), 5);
 //   });
 // });
+
+
+describe('chordLength', () => {
+  it('0° on unit circle → 0  (0, integer result)', () => {
+    assertClose(chordLength(1, 0), 0);
+  });
+
+  it('0.0001° on unit circle → 0  (small, decimal result)', () => {
+    assertClose(chordLength(10, 0.0001), 0);
+  });
+});

@@ -44,7 +44,7 @@ export interface Navigator {
  * @returns  non-negative distance
  */
 export function distance(a: Point, b: Point): number {
-  throw new Error('implement me!');
+  return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
 /**
@@ -66,7 +66,8 @@ export function distance(a: Point, b: Point): number {
  * @returns             chord length
  */
 export function chordLength(radius: number, centralAngle: number): number {
-  throw new Error('implement me!');
+  let centralRadian = centralAngle / 360 * 2 * Math.PI;
+  return 2 * radius * Math.sin(centralRadian / 2);
 }
 
 // ─── Part 2 · Polygon ────────────────────────────────────────────────────────
@@ -91,7 +92,7 @@ export function chordLength(radius: number, centralAngle: number): number {
  * @returns         perimeter of the polygon
  */
 export function polygonPerimeter(radius: number, numSides: number): number {
-  throw new Error('implement me!');
+  return chordLength(radius, 360 / numSides) * numSides;
 }
 
 // ─── Part 3 · Navigation ─────────────────────────────────────────────────────
@@ -120,7 +121,9 @@ export function polygonPerimeter(radius: number, numSides: number): number {
  * @returns     bearing in degrees [0, 360)
  */
 export function bearing(from: Point, to: Point): number {
-  throw new Error('implement me!');
+  const radian = Math.atan2(to.x - from.x, to.y - from.y);
+  const angle = radian / Math.PI * 180;
+  return (angle + 360) % 360;
 }
 
 /**
@@ -136,7 +139,10 @@ export function bearing(from: Point, to: Point): number {
  * @param dest  the destination point
  */
 export function navigateTo(nav: Navigator, dest: Point): void {
-  throw new Error('implement me!');
+  if (nav.position.x !== dest.x || nav.position.y !== dest.y) {
+    nav.heading = bearing(nav.position, dest);
+  }  
+  nav.position = dest;
 }
 
 /**
@@ -161,7 +167,12 @@ export function navigateTo(nav: Navigator, dest: Point): void {
  * @returns          total path length
  */
 export function totalPathLength(nav: Navigator, waypoints: Point[]): number {
-  throw new Error('implement me!');
+  let totalLentgh = 0
+  for (const p of waypoints) {
+    totalLentgh += distance(p, nav.position);
+    navigateTo(nav, p);
+  }
+  return totalLentgh;
 }
 
 // ─── Part 4 · Pattern generation (open-ended) ────────────────────────────────
@@ -205,7 +216,17 @@ export function generatePattern(
   k: number,
   steps: number
 ): Point[] {
-  throw new Error('implement me!');
+  const inc = 2 * Math.PI / steps;
+  let r: number;
+  let x: number, y: number;
+  const points: Array<Point> = [];
+  for (let i = 0, theta = inc; i < steps; ++i, theta += inc) {
+    r = amplitude * Math.cos(k * theta);
+    x = cx + r * Math.cos(theta);
+    y = cy + r * Math.sin(theta);
+    points.push({"x": x, "y": y});
+  }
+  return points;
 }
 
 // ─── Helper functions — add your own below ────────────────────────────────────
