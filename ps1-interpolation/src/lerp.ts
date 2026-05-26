@@ -57,7 +57,7 @@ export const lerp: (a: number, b: number, t: number) => number = lerpWeak;
  *           tolerance 0.001
  */
 export function lerpWeak(a: number, b: number, t: number): number {
-  throw new Error('implement me!');
+  return a + t * (b - a);
 }
 
 // ─── Step 5b: Write the spec for lerpStrong ──────────────────────────────────
