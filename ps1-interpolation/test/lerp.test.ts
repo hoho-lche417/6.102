@@ -41,8 +41,9 @@ import { lerpWeak, lerpStrong } from '../src/lerp';
 // Section 1 — lerpWeak  (step 2b)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// TODO: write your testing strategy comment here (see format above)
-
+// Testing strategy for lerpWeak:
+//   Partition on t: t = 0, t = 1, 0 < t < 1
+//   Partition on a, b: a < b, a = b, a > b
 describe('lerpWeak', () => {
   // ── Provided example test ─────────────────────────────────────────────────
   // You may read and then discard this example; write your own tests instead.
@@ -52,6 +53,21 @@ describe('lerpWeak', () => {
 
   // ── Your tests go here ────────────────────────────────────────────────────
   // Remember: only test what your lerpWeak spec actually guarantees.
+  it('t = 0 returns first value for a > b', () => {
+    assertApproxEqual(lerpWeak(7, 1, 0), 7);
+  });
+
+  it('t = 1 returns second value for a < b', () => {
+    assertApproxEqual(lerpWeak(5, 70, 1), 70);
+  });
+
+  it('t = 0.75 for a < b', () => {
+    assertApproxEqual(lerpWeak(-2.5, 7.5, 0.75), 5);
+  });
+
+  it('t = 0.25 for a = b', () => {
+    assertApproxEqual(lerpWeak(9, 9, 0.25), 5);
+  });
 
 });
 
