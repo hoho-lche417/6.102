@@ -37,7 +37,8 @@ import { lerpArray, fillSequence, makeEvenSpacing, interpolate } from '../src/se
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // Testing strategy for lerpArray:
-// TODO — fill in your partitions here before writing tests.
+//   Partition on a.length: a.length == 1, a.length > 1
+//   Partition on t: t = 0, t = 1, 0 < t < 1
 //
 // Suggested dimensions to consider:
 //   – array length: 1 element, multiple elements
@@ -54,6 +55,26 @@ describe('lerpArray', () => {
   });
 
   // ── Your tests ────────────────────────────────────────────────────────────
+  it('t = 1 for array length 1', () => {
+    const result = lerpArray([3], [10], 1);
+    assert.strictEqual(result.length, 1);
+    assertApproxEqual(result[0], 10);
+  });
+
+  it('t = 0 for array length 2', () => {
+    const result = lerpArray([10, 10], [5, 30], 0);
+    assert.strictEqual(result.length, 2);
+    assertApproxEqual(result[0], 10);
+    assertApproxEqual(result[1], 10);
+  });
+
+  it('t = 0.5 for array length 3', () => {
+    const result = lerpArray([10, 10, 7], [5, 30, 7], 0);
+    assert.strictEqual(result.length, 3);
+    assertApproxEqual(result[0], 7.5);
+    assertApproxEqual(result[1], 20);
+    assertApproxEqual(result[1], 7);
+  });
 
 });
 
