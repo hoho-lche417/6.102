@@ -66,7 +66,7 @@ describe('lerpWeak', () => {
   });
 
   it('t = 0.25 for a = b', () => {
-    assertApproxEqual(lerpWeak(9, 9, 0.25), 5);
+    assertApproxEqual(lerpWeak(9, 9, 0.25), 9);
   });
 
 });
