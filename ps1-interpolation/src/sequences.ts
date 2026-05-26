@@ -57,8 +57,14 @@ export type Keyframes = Map<number, number>;
  * @returns  new array r of length a.length where r[i] = lerp(a[i], b[i], t),
  *           within tolerance 0.001 for each element
  */
-export function lerpArray(a: ReadonlyArray<number>, b: ReadonlyArray<number>, t: number): number[] {
-  throw new Error('implement me!');
+export function lerpArray(a: ReadonlyArray<number>, 
+  b: ReadonlyArray<number>, 
+  t: number): number[] {
+  const result: Array<number> = [];
+  for (let i = 0; i < a.length; ++i) {
+    result.push(lerp(a[i], b[i], t));
+  }
+  return result;
 }
 
 // ─── fillSequence ─────────────────────────────────────────────────────────────
