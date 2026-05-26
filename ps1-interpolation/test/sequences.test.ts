@@ -182,7 +182,8 @@ describe('makeEvenSpacing', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // Testing strategy for interpolate:
-// TODO
+//   Partition on t: 0 <= t <= 1, t out of range
+//   easing: identity (t => t), extrapolating (t => 2*t)
 //
 // Suggested dimensions:
 //   – t: 0, 1, strictly between 0 and 1
@@ -206,5 +207,18 @@ describe('interpolate', () => {
   });
 
   // ── Your tests ────────────────────────────────────────────────────────────
+  it('constant easing', () => {
+    const constant = (t: number): number => 3;
+    assertApproxEqual(interpolate(2, 10, constant, 0.3), 26);
+  });
+
+  it('multiplying-by-two easing', () => {
+    const twice = (t: number): number => 2 * t;
+    assertApproxEqual(interpolate(10, 50, twice, 0.75), 70);
+  });
+
+  assert.throws(() => { interpolate(0, 1, t => t, -0.1); });
+
+  assert.throws(() => { interpolate(0, 1, t => t, 1.5); });
 
 });

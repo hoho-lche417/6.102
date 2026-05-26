@@ -185,5 +185,9 @@ export function makeEvenSpacing(start: number, count: number, period: number): n
  * @throws   Error if t < 0 or t > 1
  */
 export function interpolate(v0: number, v1: number, easing: EasingFn, t: number): number {
-  throw new Error('implement me!');
+  if (t < 0 || t > 1) {
+    throw new Error("t out of range!");
+  }
+  let result = lerp(v0, v1, easing(t));
+  return result;
 }
