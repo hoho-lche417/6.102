@@ -75,7 +75,9 @@ describe('lerpWeak', () => {
 // Section 2 — lerpStrong  (step 5d)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// TODO: write your testing strategy comment here
+// Testing strategy for lerpWeak:
+//   Partition on t: t = 0, t = 1, 0 < t < 1
+//   Partition on a, b: a < b, a = b, a > b
 
 describe('lerpStrong', () => {
   // ── Provided example test ─────────────────────────────────────────────────
@@ -86,5 +88,25 @@ describe('lerpStrong', () => {
   // ── Your tests go here ────────────────────────────────────────────────────
   // lerpStrong must be tested over its full guaranteed range.
   // Does your strong spec allow t outside [0, 1]?  If so, test that!
+
+  it('t = 1 returns second value for a > b', () => {
+    assertApproxEqual(lerpStrong(75, 20, 1), 20);
+  });
+
+  it('t = 0.75 for a < b', () => {
+    assertApproxEqual(lerpStrong(-2.5, 7.5, 0.75), 5);
+  });
+
+  it('t = 0.25 for a = b', () => {
+    assertApproxEqual(lerpStrong(9, 9, 0.25), 9);
+  });
+
+  it('t = -1 for a > b', () => {
+    assertApproxEqual(lerpStrong(6, 1, -1), 11);
+  });
+
+  it('t = 2 for a < b', () => {
+    assertApproxEqual(lerpStrong(5, 10, 2), 15);
+  });
 
 });

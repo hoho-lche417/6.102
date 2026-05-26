@@ -30,7 +30,7 @@
  * @returns  value between a and b corresponding to parameter t, within
  *           tolerance 0.001
  */
-export const lerp: (a: number, b: number, t: number) => number = lerpWeak;
+export const lerp: (a: number, b: number, t: number) => number = lerpStrong;
 // ↑ Step 5f: change lerpWeak to lerpStrong once you have implemented it.
 
 // ─── Step 2a: Write the spec for lerpWeak ────────────────────────────────────
@@ -69,10 +69,16 @@ export function lerpWeak(a: number, b: number, t: number): number {
 //     guarantee?  (Answer step 5a first — see the bottom of this file.)
 
 /**
- * TODO: replace this comment with your strong spec.
+ * Linearly interpolate between two numbers.
+ * 
+ * @param a  start value
+ * @param b  end value
+ * @param t  interpolation parameter
+ * @returns  value between a and b corresponding to parameter t, within
+ *           tolerance 0.001
  */
 export function lerpStrong(a: number, b: number, t: number): number {
-  throw new Error('implement me!');
+  return a + t * (b - a);
 }
 
 // ─── Step 5a and 5c: Analysis questions ──────────────────────────────────────
@@ -86,21 +92,25 @@ export function lerpStrong(a: number, b: number, t: number): number {
 //    `interpolate` (found in sequences.ts)?
 //    Hint: look at how interpolate computes the t argument it passes to lerp.
 //
-// A: TODO
+// A: Because lerpWeak assumes 0 <= t <= 1, but interpolate calls leap with unconstrained t
 //
 // ── Step 5c (three parts) ────────────────────────────────────────────────────
 //
 // Q1: Is lerpWeak WEAKER THAN, STRONGER THAN, EQUIVALENT TO, or UNRELATED TO
 //     lerpStrong?  Justify in one sentence.
 //
-// A1: TODO
+// A1: As the name implis, lerpWeak is weaker than lerpStrong
 //
 // Q2: Could a correct implementation of lerpStrong also be a correct
 //     implementation of lerpWeak?  Why or why not?
 //
-// A2: TODO
+// A2: Yes, since the inputs for lerpWeak is valid inputs for lerpStrong,
+//     and for the same inputs, both function have the same output, which means
+//     lerpWeak can be replaced by lerpStrong at every occurrence without 
+//     affecting the client codes.
 //
 // Q3: Could a correct implementation of lerpWeak also be a correct
 //     implementation of lerpStrong?  Why or why not?
 //
-// A3: TODO
+// A3: No, since the inputs for lerpStrong may not be valid inputs for lerpWeak
+//     in the first place, since it has looser constraint on t.
