@@ -69,11 +69,11 @@ describe('lerpArray', () => {
   });
 
   it('t = 0.5 for array length 3', () => {
-    const result = lerpArray([10, 10, 7], [5, 30, 7], 0);
+    const result = lerpArray([10, 10, 7], [5, 30, 7], 0.5);
     assert.strictEqual(result.length, 3);
     assertApproxEqual(result[0], 7.5);
     assertApproxEqual(result[1], 20);
-    assertApproxEqual(result[1], 7);
+    assertApproxEqual(result[2], 7);
   });
 
 });
