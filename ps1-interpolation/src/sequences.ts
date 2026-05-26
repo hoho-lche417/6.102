@@ -152,7 +152,13 @@ export function fillSequence(keyframes: Keyframes, steps: number): Keyframes {
  * @returns  array of `count` numbers, each in [0, period), within tolerance 0.001
  */
 export function makeEvenSpacing(start: number, count: number, period: number): number[] {
-  throw new Error('implement me!');
+  let step = period / count;
+  let result: Array<number> = [];
+  for (let i = 0; i < count; ++i) {
+    result.push((start + i * step) % period);
+  }
+
+  return result;
 }
 
 // ─── interpolate ──────────────────────────────────────────────────────────────

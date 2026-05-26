@@ -138,7 +138,9 @@ describe('fillSequence', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // Testing strategy for makeEvenSpacing:
-// TODO
+//   Partition on count: count = 1, count > 1
+//   Partition on start: start = 0, start > 0
+//   Partition on wrapping: start + k*step < period, start + k*step >= period
 //
 // Suggested dimensions:
 //   – count: 1, 2, more
@@ -158,6 +160,20 @@ describe('makeEvenSpacing', () => {
   });
 
   // ── Your tests ────────────────────────────────────────────────────────────
+  it('4 evenly spaced values in period 12, with wrapping', () => {
+    const result = makeEvenSpacing(5, 4, 12);
+    assert.strictEqual(result.length, 4);
+    assertApproxEqual(result[0], 5);
+    assertApproxEqual(result[1], 8);
+    assertApproxEqual(result[2], 11);
+    assertApproxEqual(result[3], 2);
+  });
+
+  it('count = 1, start > 0', () => {
+    const result = makeEvenSpacing(3, 1, 7);
+    assert.strictEqual(result.length, 1);
+    assertApproxEqual(result[0], 3);
+  });
 
 });
 
