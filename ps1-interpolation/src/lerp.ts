@@ -48,7 +48,13 @@ export const lerp: (a: number, b: number, t: number) => number = lerpWeak;
 // If not, you may be over-specifying it.  Which guarantees can you remove?
 
 /**
- * TODO: replace this comment with your weak spec.
+ * Linearly interpolate between two numbers.
+ * 
+ * @param a  start value
+ * @param b  end value
+ * @param t  interpolation parameter; requires 0 <= t <= 1
+ * @returns  value between a and b corresponding to parameter t, within
+ *           tolerance 0.001
  */
 export function lerpWeak(a: number, b: number, t: number): number {
   throw new Error('implement me!');
