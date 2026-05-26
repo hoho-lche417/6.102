@@ -29,8 +29,8 @@ import { polyEval, polySample } from '../src/curves';
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // Testing strategy for polyEval:
-// TODO
-
+//   Partition on controlPoints.length: 1, 2, > 2
+//   Partition on t: t = 0, t = 1, 0 <= t <= 1
 describe('polyEval', () => {
   // ── Provided examples ─────────────────────────────────────────────────────
   it('example: 2 control points at t=0.5 is midpoint', () => {
@@ -51,6 +51,13 @@ describe('polyEval', () => {
   });
 
   // ── Your tests ────────────────────────────────────────────────────────────
+  it('one control points', () => {
+    assertApproxEqual(polyEval([3] as [number], 0.5), 3);
+  });
+
+  it('five control points', () => {
+    assertApproxEqual(polyEval([3, 4, 5, 6, 7], 0.5), 5);
+  });
 
 });
 
@@ -59,7 +66,8 @@ describe('polyEval', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // Testing strategy for polySample:
-// TODO
+//   Partition on numSample: default (1), numberSample >= 1
+//   Partition on controlPoints.length: 1, >= 1
 
 describe('polySample', () => {
   // ── Provided example ──────────────────────────────────────────────────────
@@ -73,6 +81,16 @@ describe('polySample', () => {
   });
 
   // ── Your tests ────────────────────────────────────────────────────────────
-  // Don't forget to test the undefined case (default numSamples).
+  it('n=1 samples for length 1', () => {
+    const result = polySample([6], undefined);
+    assert.strictEqual(result.length, 1);
+    assertApproxEqual(result[0], 6);
+  });
+
+  it('n=1 samples for length 1', () => {
+    const result = polySample([3, 5 ,7], undefined);
+    assert.strictEqual(result.length, 1);
+    assertApproxEqual(result[0], 5);
+  });
 
 });

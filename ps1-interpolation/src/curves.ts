@@ -63,13 +63,14 @@ import { lerp } from './lerp';
  * TODO: strengthen this spec according to the step 6a instructions above.
  *       Replace this comment with your improved spec.
  *
- * @param renameMe  TODO: rename and fix the type
- * @param t         curve parameter; requires 0 <= t <= 1
+ * @param controlPoints  control points defining a 1-D polynomial curve; 
+ *                       requires at least one number
+ * @param t  curve parameter; requires 0 <= t <= 1
  * @returns  a number on the curve defined by the control points
- *           TODO: make this postcondition precise
+ *           calculated by the de Casteljau's algorithm
  * @throws  Error if t < 0 or t > 1
  */
-export function polyEval(renameMe: [number, number, ...number[]], t: number): number {
+export function polyEval(controlPoints: ReadonlyArray<number>, t: number): number {
   throw new Error('implement me!');
 }
 
@@ -101,14 +102,15 @@ export function polyEval(renameMe: [number, number, ...number[]], t: number): nu
  *       Replace this comment with your improved spec.
  *
  * @param controlPoints  control points of the curve; requires length >= 1
- * @param renameMe       TODO: rename, change type to number | undefined,
- *                             and specify default behaviour
- * @returns  array of values on the curve
- *           TODO: make this postcondition precise
+ * @param numberSample   the number of samples > 0; 1 by default
+ * @returns  array of numberSample values on the curve;
+ *           each value equals polyEval(controlPoints, t_i),
+ *           where t_i = i / (numberSample - 1), for i = 0 ... numberSample - 1
+ *           if numberSample = 1, then return middle point
  */
 export function polySample(
   controlPoints: ReadonlyArray<number>,
-  renameMe: number
+  numberSample: number | undefined
 ): number[] {
   throw new Error('implement me!');
 }
