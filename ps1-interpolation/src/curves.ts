@@ -71,7 +71,22 @@ import { lerp } from './lerp';
  * @throws  Error if t < 0 or t > 1
  */
 export function polyEval(controlPoints: ReadonlyArray<number>, t: number): number {
-  throw new Error('implement me!');
+  if (t < 0 || t > 1) {
+    throw new Error('t out of range!');
+  }
+  if (controlPoints.length === 1) {
+    return controlPoints[0];
+  }
+  if (controlPoints.length === 2) {
+    return lerp(controlPoints[0], controlPoints[1], t);
+  }
+
+  // create control point array for the new layer
+  const newControlPoints: Array<number> = [];
+  for (let i = 1; i < controlPoints.length; ++i) {
+    newControlPoints.push(lerp(controlPoints[i - 1], controlPoints[i], t));
+  }
+  return polyEval(newControlPoints, t);
 }
 
 // ─── polySample ───────────────────────────────────────────────────────────────
@@ -111,6 +126,18 @@ export function polyEval(controlPoints: ReadonlyArray<number>, t: number): numbe
 export function polySample(
   controlPoints: ReadonlyArray<number>,
   numberSample: number | undefined
-): number[] {
-  throw new Error('implement me!');
+): number[] {  
+  if (numberSample === undefined) {
+    return [polyEval(controlPoints, 0.5)];
+  }
+  
+  const result: Array<number> = []
+
+  for (let i = 0; i < numberSample; ++i) {
+    let t = i / (numberSample - 1);
+    result.push(polyEval(controlPoints, t));
+  }
+
+  return result;
 }
+

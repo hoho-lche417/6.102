@@ -81,13 +81,13 @@ describe('polySample', () => {
   });
 
   // ── Your tests ────────────────────────────────────────────────────────────
-  it('n=1 samples for length 1', () => {
+  it('one samples for length 1', () => {
     const result = polySample([6], undefined);
     assert.strictEqual(result.length, 1);
     assertApproxEqual(result[0], 6);
   });
 
-  it('n=1 samples for length 1', () => {
+  it('one samples for length 3', () => {
     const result = polySample([3, 5 ,7], undefined);
     assert.strictEqual(result.length, 1);
     assertApproxEqual(result[0], 5);
