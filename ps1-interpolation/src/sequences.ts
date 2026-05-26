@@ -99,7 +99,25 @@ export function lerpArray(a: ReadonlyArray<number>,
  *             within tolerance 0.001
  */
 export function fillSequence(keyframes: Keyframes, steps: number): Keyframes {
-  throw new Error('implement me!');
+  const result: Keyframes = new Map([]);
+
+  result.set(0, keyframes.get(0)!);
+  for (let start = 0, end = 1; end < steps; ++end) {
+    if (keyframes.has(end)) {
+      // populate result array for steps from start + 1 to end
+      let a = keyframes.get(start);
+      let b = keyframes.get(end);
+      let step_size = 1 / (end - start);
+      for (let key = start + 1, i = 1; key <= end; ++key, ++i) {
+        let t = step_size * i;
+        let interpValue = lerp(a!, b!, t);
+        result.set(key, interpValue);
+      }
+      start = end;
+    }
+  }
+
+  return result;
 }
 
 // ─── makeEvenSpacing ──────────────────────────────────────────────────────────

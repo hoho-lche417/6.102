@@ -83,8 +83,9 @@ describe('lerpArray', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // Testing strategy for fillSequence:
-// TODO
-//
+//   Partition on number of keyframes: exactly 2, more than 2
+//   Partition on steps: steps = 2, steps > 2
+
 // Suggested dimensions:
 //   – number of keyframes: exactly 2, more than 2
 //   – position of intermediate keyframes: at the boundary, in the middle
@@ -94,7 +95,7 @@ describe('lerpArray', () => {
 
 describe('fillSequence', () => {
   // ── Provided example ──────────────────────────────────────────────────────
-  it('example: two keyframes, linear fill', () => {
+  it('example: two keyframes, step > 2', () => {
     const kf = new Map([[0, 10], [4, 30]]);
     const result = fillSequence(kf, 5);
     // Must have entries for every step 0..4
@@ -110,7 +111,26 @@ describe('fillSequence', () => {
   //   assert.deepStrictEqual(result, expectedMap)
   // only when your expectedMap contains values that exactly match (integers).
   // For floating-point values, retrieve them individually and use assertApproxEqual.
+  it('two keyframes, step = 2', () => {
+    const kf = new Map([[0, 30], [1, 10]]);
+    const result = fillSequence(kf, 2);
+    // Must have entries for every step 0..4
+    assert.strictEqual(result.size, 2, 'size not equal to 2');
+    assertApproxEqual(result.get(0) ?? NaN, 30, 0.001, 'step 0');
+    assertApproxEqual(result.get(1) ?? NaN, 10, 0.001, 'step 1');
+  });
 
+  it('three keyframes, step > 2', () => {
+    const kf = new Map([[0, 10], [2, 20], [4, 50]]);
+    const result = fillSequence(kf, 5);
+    // Must have entries for every step 0..4
+    assert.strictEqual(result.size, 5);
+    assertApproxEqual(result.get(0) ?? NaN, 10, 0.001, 'step 0');
+    assertApproxEqual(result.get(1) ?? NaN, 15, 0.001, 'step 1');
+    assertApproxEqual(result.get(2) ?? NaN, 20, 0.001, 'step 2');
+    assertApproxEqual(result.get(3) ?? NaN, 35, 0.001, 'step 3');
+    assertApproxEqual(result.get(4) ?? NaN, 50, 0.001, 'step 4');
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
