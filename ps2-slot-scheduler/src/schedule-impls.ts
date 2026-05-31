@@ -130,7 +130,9 @@ export class RepMapSchedule<Task> implements Schedule<Task> {
       if (start !== this.startMap.get(task) || 
           end !== this.endMap.get(this.startMap.get(task)!)) {
         throw new ScheduleConflictError('task is already in this set with a different slot!');
-      } // else {nop}
+      } else {
+        return; // nop
+      }
     }
     for (let [t, a] of this.startMap.entries()) {
       let b = this.endMap.get(a);
