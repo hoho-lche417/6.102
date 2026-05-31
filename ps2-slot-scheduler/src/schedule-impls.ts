@@ -222,8 +222,11 @@ export class RepArraySchedule<Task> implements Schedule<Task> {
   // ── Abstraction Function ───────────────────────────────────────────────────
   //
   // TODO (Problem 3.1): Write the AF here.
-  //
-  // AF(taskList, timeList) = ???
+  //   For any index i in taskList, taskList[i] is a task
+  //   with time slot [timeList[2*i], timeList[2*i + 1]).
+  // AF(taskList, timeList) = 
+  //   {task taskList[i] with time slot [timeList[2*i], timeList[2*i + 1]) | 
+  //    0 <= i <= taskList.length}
 
   // ── Representation Invariant ───────────────────────────────────────────────
   //
@@ -231,9 +234,9 @@ export class RepArraySchedule<Task> implements Schedule<Task> {
   //
   // RI:
   //   1. timeList.length === 2 * taskList.length
-  //   2. ???   (valid slot range for each i)
-  //   3. ???   (all tasks distinct)
-  //   4. ???   (no two slots overlap)
+  //   2. 0 <= timeList[2*i] < timeList[2*i + 1] <= 1440
+  //   3. taskList doesn't have duplicated values (tasks)
+  //   4. no overlapping slots
   //
   // Note: unlike RepMapSchedule, you are NOT required to keep tasks in sorted
   // order — but you may choose to do so.  Document your choice clearly.
@@ -242,7 +245,8 @@ export class RepArraySchedule<Task> implements Schedule<Task> {
   //
   // TODO: Explain here why this class is safe from rep exposure.
   //
-  // SRE: ???
+  // SRE: taskList and timeList are private readonly, hidden from clients,
+  //      and tasks() must return a new Set
 
   /**
    * Create an empty schedule.
@@ -255,44 +259,109 @@ export class RepArraySchedule<Task> implements Schedule<Task> {
 
   private checkRep(): void {
     // TODO (Problem 3.1): implement this.
-    throw new Error('implement me!');
+    if (this.timeList.length !== 2 * this.taskList.length) {
+      throw new Error('(timeList.length === 2 * taskList.length) should hold!');
+    }
+    for (let i = 0; i < this.taskList.length; ++i) {
+      if (this.timeList[2*i]! < 0 ||
+          this.timeList[2*i + 1]! > 1440 ||
+          this.timeList[2*i]! >= this.timeList[2*i + 1]!
+      ) {
+        throw new Error('0 ≤ start < end <= 1440 violated!');
+      }
+    }
+    // for RI 3 and 4, the time complexity is O(n^2) so it would best to
+    // rely on the specification.
+    // they are easy to implement anyway, just not so efficient
   }
 
   // ── Schedule<Task> methods ────────────────────────────────────════════════
 
   /** @inheritdoc */
   public add(task: Task, start: number, end: number): void {
-    throw new Error('implement me!');
+    this.checkRep();
+    if (this.taskList.includes(task)) {
+      let idx = this.taskList.indexOf(task);
+      let a = this.timeList[2*idx];
+      let b = this.timeList[2*idx + 1];
+      if (a != start || b != end) {
+        throw new ScheduleConflictError('task is already in this set with a different slot!');
+      } else {
+        return; // nop
+      }
+    }
+    for (let i = 0; i < this.taskList.length; ++i) {
+      let t = this.taskList[i];
+      let a = this.timeList[2*i];
+      let b = this.timeList[2*i + 1]; 
+      if (t !== task && a! < end && start < b!) {
+        throw new ScheduleConflictError('[start,end) overlaps the slot of a different task!');
+      }
+    }
+    this.taskList.push(task);
+    this.timeList.push(start);
+    this.timeList.push(end);
+    this.checkRep();
   }
 
   /** @inheritdoc */
   public remove(task: Task): void {
-    throw new Error('implement me!');
+    this.checkRep();
+    if (this.taskList.includes(task)) {
+      let idx = this.taskList.indexOf(task);
+      this.taskList.splice(idx, 1);
+      this.timeList.splice(idx*2, 2);
+    }
+    this.checkRep();
   }
 
   /** @inheritdoc */
   public has(task: Task): boolean {
-    throw new Error('implement me!');
+    this.checkRep();
+    return this.taskList.includes(task);
   }
 
   /** @inheritdoc */
   public slot(task: Task): Slot | undefined {
-    throw new Error('implement me!');
+    this.checkRep();
+    if (this.taskList.includes(task)) {
+      let idx = this.taskList.indexOf(task);
+      let a = this.timeList[idx*2];
+      let b = this.timeList[idx*2 + 1];
+      return new Slot(a!, b!);
+    } else {
+      return undefined;
+    }
   }
 
   /** @inheritdoc */
   public tasks(): ReadonlySet<Task> {
-    throw new Error('implement me!');
+    this.checkRep();
+    let result = new Set<Task>();
+    for (let t of this.taskList) {
+      result.add(t);
+    }
+    return result;
   }
 
   /** @inheritdoc */
   public size(): number {
-    throw new Error('implement me!');
+    this.checkRep();
+    return this.taskList.length;
   }
 
   /** @inheritdoc */
   public toString(): string {
-    throw new Error('implement me!');
+    this.checkRep();
+    let result: string = 'Schedule { '
+    for (let i = 0; i < this.taskList.length; ++i) {
+      let t = this.taskList[i];
+      let a = this.timeList[2*i];
+      let b = this.timeList[2*i + 1];
+      result += '${t.toString()}=[${a},${b}), ';
+    }
+    result += '}';
+    return result;
   }
 }
 
@@ -322,6 +391,6 @@ export function implementationsForTesting(): Array<[string, ScheduleCtor]> {
     // Problem 2.1 line — remove this after making RepMapSchedule generic:
     ['RepMapSchedule', RepMapSchedule as unknown as ScheduleCtor],
     // Problem 3.1 line — uncomment this once RepArraySchedule is complete:
-    // ['RepArraySchedule', RepArraySchedule as unknown as ScheduleCtor],
+    ['RepArraySchedule', RepArraySchedule as unknown as ScheduleCtor],
   ];
 }
