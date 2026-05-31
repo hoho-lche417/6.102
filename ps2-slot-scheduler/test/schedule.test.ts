@@ -166,7 +166,7 @@ function runScheduleTests(name: string, SomeSchedule: ScheduleCtor): void {
   //
   // Remove the skip prefix to enable these tests (Problem 2.3):
 
-  describe.skip(`Schedule — ${name} — non-string labels`, () => {
+  describe(`Schedule — ${name} — non-string labels`, () => {
 
     it('example: two distinct object labels are separate tasks', () => {
       const s = new SomeSchedule<object>();
