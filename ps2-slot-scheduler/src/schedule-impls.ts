@@ -196,7 +196,7 @@ export class RepMapSchedule<Task> implements Schedule<Task> {
     let result: string = 'Schedule { '
     for (let [t, a] of this.startMap.entries()) {
       let b = this.endMap.get(a);
-      result += '${t.toString()}=[${a},${b}), ';
+      result += `${t}=[${a},${b}), `;
     }
     result += '}';
     return result;
@@ -360,7 +360,7 @@ export class RepArraySchedule<Task> implements Schedule<Task> {
       let t = this.taskList[i];
       let a = this.timeList[2*i];
       let b = this.timeList[2*i + 1];
-      result += '${t.toString()}=[${a},${b}), ';
+      result += `${t}=[${a},${b}), `;
     }
     result += '}';
     return result;

@@ -224,7 +224,7 @@ export class WeeklySchedule<Task> {
     this.checkRep();
     let result: string = '';
     for (let d = 0; d < 7; ++d) {
-      result += 'Day ${d}: \n\t' + this.schedule.get(d)!.toString() + '\n';
+      result += `Day ${d}: \n\t` + this.schedule.get(d)!.toString() + '\n';
     }
     return result;
   }
