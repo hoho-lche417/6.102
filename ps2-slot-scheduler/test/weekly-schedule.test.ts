@@ -1,0 +1,63 @@
+/**
+ * weekly-schedule.test.ts
+ *
+ * Tests for WeeklySchedule<Task>.  Problem 4.1.
+ *
+ * Your tests must be legal clients of the WeeklySchedule spec.
+ * Since the spec of toString() is very weak, do NOT test its exact format.
+ *
+ * ─── Partitioning ─────────────────────────────────────────────────────────
+ *
+ * Write a testing strategy comment before writing test cases.
+ *
+ * Useful partitions:
+ *   – state: empty, one (task,day), multiple tasks, same task on multiple days
+ *   – add():  no conflict, conflict (same task different slot), overlap error
+ *   – remove(task, day): present, absent
+ *   – removeAll(task): on no days, one day, multiple days
+ *   – days(task): 0 days, 1 day, many days
+ *   – tasks(day): 0 tasks, 1 task, many tasks
+ *   – day values: boundary (0, 6), middle (3), out of range (−1, 7)
+ */
+
+import assert from 'assert';
+import { ScheduleConflictError } from '../src/schedule';
+import { WeeklySchedule } from '../src/weekly-schedule';
+
+// Testing strategy:
+// TODO — write your partitions here before writing tests
+
+describe('WeeklySchedule', () => {
+
+  // ── Provided example test ─────────────────────────────────────────────────
+  it('example: fresh WeeklySchedule has no tasks on any day', () => {
+    const w = new WeeklySchedule<string>();
+    for (let day = 0; day <= 6; day++) {
+      assert.deepStrictEqual(w.tasks(day), new Set());
+    }
+  });
+
+  it('example: add a task on one day', () => {
+    const w = new WeeklySchedule<string>();
+    w.add('Lecture', 1, 540, 630);
+    assert.strictEqual(w.has('Lecture', 1), true);
+    assert.strictEqual(w.has('Lecture', 2), false);
+    assert.deepStrictEqual(w.days('Lecture'), new Set([1]));
+  });
+
+  it('example: same task on multiple days', () => {
+    const w = new WeeklySchedule<string>();
+    w.add('Lecture', 1, 540, 630);
+    w.add('Lecture', 3, 540, 630);
+    assert.deepStrictEqual(w.days('Lecture'), new Set([1, 3]));
+  });
+
+  it('example: invalid day throws RangeError', () => {
+    const w = new WeeklySchedule<string>();
+    assert.throws(() => { w.add('A', -1, 100, 200); }, RangeError);
+    assert.throws(() => { w.add('A',  7, 100, 200); }, RangeError);
+  });
+
+  // ── Your tests go here ────────────────────────────────────────────────────
+
+});
