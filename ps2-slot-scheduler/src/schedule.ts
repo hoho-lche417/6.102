@@ -11,6 +11,8 @@
  * You MUST implement makeSchedule() once you have finished Problem 3.
  */
 
+import { RepArraySchedule } from "./schedule-impls";
+
 // ─── Slot ─────────────────────────────────────────────────────────────────────
 
 /**
@@ -168,5 +170,5 @@ export interface Schedule<Task> {
  * @returns a new, empty Schedule
  */
 export function makeSchedule<Task>(): Schedule<Task> {
-  throw new Error('implement me! (Problem 3.2)');
+  return new RepArraySchedule<Task>();
 }

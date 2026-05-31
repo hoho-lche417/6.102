@@ -54,27 +54,43 @@ export class WeeklySchedule<Task> {
   //   Other designs are possible too.
   //
   // Obtain Schedule instances with makeSchedule(), not with a specific class.
+  private readonly schedule = new Map<number, Schedule<Task>>();
 
   // ── Abstraction Function ──────────────────────────────────────────────────
   // TODO: Write AF here.
-  // AF(???) = ???
+  // AF(schedule) = {task with slot [a, b) on day d | 
+  //                <task, [a, b)> in schedule.get(d), for all d}
 
   // ── Representation Invariant ──────────────────────────────────────────────
   // TODO: Write RI here.
-  // RI: ???
+  // RI: schedule.keys() withen range [0, 7)
+  //     schedule.size === 7
 
   // ── Safety from Rep Exposure ──────────────────────────────────────────────
   // TODO: Document SRE.
-  // SRE: ???
+  // SRE: private readonly repesentation hides itself from the clients
+  //      defensive copy of mutable types for arguments and return values
 
   /** Create an empty weekly schedule. */
   public constructor() {
+    for (let i = 0; i < 7; ++i) {
+      let daySchedule = makeSchedule<Task>();
+      this.schedule.set(i, daySchedule);
+    }
     this.checkRep();
   }
 
   private checkRep(): void {
-    throw new Error('implement me!');
+    if (this.schedule.size !== 7) {
+      throw new Error('Incorrect size for schedule!');
+    }
+    for (let k of this.schedule.keys()) {
+      if (k >= 7 || k < 0) {
+        throw new Error('Incorrect day for schedule!');
+      }
+    }
   }
+    
 
   // ── Mutators ──────────────────────────────────────────────────────────────
 
@@ -93,7 +109,12 @@ export class WeeklySchedule<Task> {
    * @throws RangeError if day < 0 or day > 6
    */
   public add(task: Task, day: number, start: number, end: number): void {
-    throw new Error('implement me!');
+    this.checkRep();
+    if (day < 0 || day > 6) {
+      throw new RangeError('Incorrect day for schedule!');
+    }    
+    this.schedule.get(day)!.add(task, start, end);
+    this.checkRep();
   }
 
   /**
@@ -106,7 +127,12 @@ export class WeeklySchedule<Task> {
    * @throws RangeError if day < 0 or day > 6
    */
   public remove(task: Task, day: number): void {
-    throw new Error('implement me!');
+    this.checkRep();
+    if (day < 0 || day > 6) {
+      throw new RangeError('Incorrect day for schedule!');
+    }
+    this.schedule.get(day)!.remove(task);
+    this.checkRep();
   }
 
   /**
@@ -117,7 +143,11 @@ export class WeeklySchedule<Task> {
    * @param task  the task to remove
    */
   public removeAll(task: Task): void {
-    throw new Error('implement me!');
+    this.checkRep();
+    for (let d = 0; d < 7; ++d) {
+      this.schedule.get(d)!.remove(task);
+    }
+    this.checkRep();
   }
 
   // ── Observers ─────────────────────────────────────────────────────────────
@@ -129,7 +159,11 @@ export class WeeklySchedule<Task> {
    * @throws RangeError if day < 0 or day > 6
    */
   public has(task: Task, day: number): boolean {
-    throw new Error('implement me!');
+    this.checkRep();
+    if (day < 0 || day > 6) {
+      throw new RangeError('Incorrect day for schedule!');
+    }
+    return this.schedule.get(day)!.has(task);
   }
 
   /**
@@ -139,7 +173,11 @@ export class WeeklySchedule<Task> {
    * @throws RangeError if day < 0 or day > 6
    */
   public slot(task: Task, day: number): Slot | undefined {
-    throw new Error('implement me!');
+    this.checkRep();
+    if (day < 0 || day > 6) {
+      throw new RangeError('Incorrect day for schedule!');
+    }
+    return this.schedule.get(day)!.slot(task);
   }
 
   /**
@@ -148,7 +186,14 @@ export class WeeklySchedule<Task> {
    *          fresh snapshot — changes to this schedule don't affect the result
    */
   public days(task: Task): ReadonlySet<number> {
-    throw new Error('implement me!');
+    this.checkRep();
+    let result = new Set<number>();
+    for (let d = 0; d < 7; ++d) {
+      if (this.schedule.get(d)!.has(task)) {
+        result.add(d);
+      }
+    }
+    return result;
   }
 
   /**
@@ -158,7 +203,16 @@ export class WeeklySchedule<Task> {
    * @throws RangeError if day < 0 or day > 6
    */
   public tasks(day: number): ReadonlySet<Task> {
-    throw new Error('implement me!');
+    this.checkRep();
+    if (day < 0 || day > 6) {
+      throw new RangeError('Incorrect day for schedule!');
+    }
+    let daySchedule = this.schedule.get(day)!;
+    let result = new Set<Task>();
+    for (let t of daySchedule.tasks()) {
+      result.add(structuredClone(t));
+    }
+    return result;
   }
 
   /**
@@ -167,6 +221,11 @@ export class WeeklySchedule<Task> {
    * @inheritdoc
    */
   public toString(): string {
-    throw new Error('implement me!');
+    this.checkRep();
+    let result: string = '';
+    for (let d = 0; d < 7; ++d) {
+      result += 'Day ${d}: \n\t' + this.schedule.get(d)!.toString() + '\n';
+    }
+    return result;
   }
 }
