@@ -64,11 +64,10 @@ function runScheduleTests(name: string, SomeSchedule: ScheduleCtor): void {
   //
   // Testing strategy for Schedule:
   //   Partition on this.size(): 0, 1, >1
-  //   Partition on add():
-  //     ...
-  //   Partition on remove():
-  //     ...
-  //   (etc.)
+  //   Partition on add(task): conflict, no conflict
+  //   Partition on remove(task): task exists, not exists
+  //   Partition on has(task): task exists, not exists
+  //   Partition on slot(task): task exists, not exists
 
   describe(`Schedule — ${name}`, () => {
 
@@ -108,6 +107,38 @@ function runScheduleTests(name: string, SomeSchedule: ScheduleCtor): void {
     });
 
     // ── Your tests go here ───────────────────────────────────────────────────
+    it('add three tasks with conflict not due to slot', () => {
+      const s = new SomeSchedule<string>();
+      s.add('Lecture1', 10, 50);
+      s.add('Lecture2', 70, 110);
+      s.add('Lecture3', 110, 170); // adjacent slot
+      assert.throws(
+        () => { s.add('Lecture1', 210, 250); },
+        ScheduleConflictError
+      );
+      assert.strictEqual(s.size(), 3);
+      assert.strictEqual(s.has('Lecture1'), true);
+      const slot = s.slot('Lecture1');
+      assert.ok(slot !== undefined);
+      assert.strictEqual(slot.start, 10);
+      assert.strictEqual(slot.end, 50);
+      const slot2 = s.slot('Lecture4');
+      assert.ok(slot2 === undefined);
+    });
+
+    it('remove tasks from schedule', () => {
+      const s = new SomeSchedule<string>();
+      s.add('Lecture1', 10, 50);
+      s.add('Lecture2', 70, 110);
+      s.add('Lecture3', 130, 170);
+      s.remove('Lecture1');
+      s.remove('Lecture4'); // no effect
+      assert.strictEqual(s.size(), 2);
+      assert.strictEqual(s.has('Lecture2'), true);
+      assert.strictEqual(s.has('Lecture3'), true);      
+      assert.strictEqual(s.has('Lecture1'), false);
+    });
+
 
     // Coverage checklist — make sure you have tests for:
     //   [ ] add: task not present, no conflict → task added
