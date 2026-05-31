@@ -26,6 +26,7 @@
  * guarantees the element is present; otherwise use if/guards.
  */
 
+import { deepEqual } from 'assert';
 import { Schedule, Slot, ScheduleConflictError } from './schedule';
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -48,8 +49,13 @@ export class RepMapSchedule<Task> implements Schedule<Task> {
   // ── Abstraction Function ───────────────────────────────────────────────────
   //
   // TODO (Problem 2.2): Write the AF here in 2–4 lines.
-  //
-  // AF(startMap, endMap) = ???
+  // For the key, which is the task, in startMap, the value corresponds to the 
+  // start minute of its slot, and the end minute of the slot can be obtained
+  // from the value of endMap, where the key is the start minute.
+  // 
+  // AF(startMap, endMap) = {task with slot [start, end) | 
+  //   where startMap.get(task) === start && endMap.get(start) === end, 
+  //   for all task within startMap.keys()}
   //
   // Hint: what abstract value do startMap and endMap together represent?
   //       Describe it in terms of the Schedule ADT (tasks and slots).
@@ -59,18 +65,18 @@ export class RepMapSchedule<Task> implements Schedule<Task> {
   // TODO (Problem 2.1–2.2): Write the RI here, as a list of conditions.
   //
   // RI:
-  //   1. ???   (consistency between startMap and endMap sizes)
-  //   2. ???   (every start key in endMap corresponds to a task in startMap)
-  //   3. ???   (valid slot range: 0 ≤ start < end ≤ 1440)
-  //   4. ???   (no two tasks have overlapping slots)
-  //
-  // Hint: two slots [a,b) and [c,d) overlap iff a < d AND c < b.
+  //   1. startMap.size === endMap.size   
+  //   2. startMap.values() and endMap.keys() are equal sets
+  //   3. 0 ≤ start < end <= 1440
+  //   4. no two tasks have overlapping slots
+  //      where two slots [a,b) and [c,d) overlap iff a < d AND c < b.
 
   // ── Safety from Rep Exposure ───────────────────────────────────────────────
   //
   // TODO: Explain here why this class is safe from rep exposure.
   //
-  // SRE: ???
+  // SRE: startMap and endMap are private readonly so that it is hidden from the clients,
+  //      and tasks() must return a new Set
 
   /**
    * Create an empty schedule.
@@ -89,7 +95,29 @@ export class RepMapSchedule<Task> implements Schedule<Task> {
     // TODO (Problem 2.1): implement this.
     // Check every condition in your RI.
     // Throw an Error (not an assertion error) with a descriptive message if violated.
-    throw new Error('implement me!');
+    if (this.startMap.size !== this.endMap.size) {
+      throw new Error('Not equal size for startMap and endMap!');
+    } 
+    for (let startMin of this.startMap.values()) {
+      if (!this.endMap.has(startMin)) {
+        throw new Error('startMin not found in endMap.keys()!');
+      }
+    }  
+    for (let [startMin, endMin] of this.endMap.entries()) {
+      if (startMin < 0 || endMin > 1440 || startMin >= endMin) {
+        throw new Error('0 ≤ start < end <= 1440 violated!');
+      }
+    }
+    for (let [a, b] of this.endMap.entries()) {
+      for (let [c, d] of this.endMap.entries()) {
+        if (a >= c) {
+          continue;
+        }
+        if (a < d && c < b) {
+          throw new Error('Overlapping slots founded!');
+        }
+      }
+    }
   }
 
   // ── Schedule<Task> methods ────────────────────────────────────────────────
@@ -97,38 +125,79 @@ export class RepMapSchedule<Task> implements Schedule<Task> {
   /** @inheritdoc */
   public add(task: Task, start: number, end: number): void {
     // TODO: call checkRep() at the start and end of this method.
-    throw new Error('implement me!');
+    this.checkRep();
+    if (this.startMap.has(task)) {
+      if (start !== this.startMap.get(task) || 
+          end !== this.endMap.get(this.startMap.get(task)!)) {
+        throw new ScheduleConflictError('task is already in this set with a different slot!');
+      } // else {nop}
+    }
+    for (let [t, a] of this.startMap.entries()) {
+      let b = this.endMap.get(a);
+      if (t !== task && a < end && start < b!) {
+        throw new ScheduleConflictError('[start,end) overlaps the slot of a different task!');
+      }
+    }
+    this.startMap.set(task, start);
+    this.endMap.set(start, end);
+    this.checkRep();
   }
 
   /** @inheritdoc */
   public remove(task: Task): void {
-    throw new Error('implement me!');
+    this.checkRep();
+    if (this.has(task)) {
+      let startMinute = this.startMap.get(task);
+      this.startMap.delete(task);
+      this.endMap.delete(startMinute!);
+    }
+    this.checkRep();
   }
 
   /** @inheritdoc */
   public has(task: Task): boolean {
-    throw new Error('implement me!');
+    this.checkRep();
+    return this.startMap.has(task);
   }
 
   /** @inheritdoc */
   public slot(task: Task): Slot | undefined {
-    throw new Error('implement me!');
+    this.checkRep();
+    if (this.has(task)) {
+      let a = this.startMap.get(task);
+      let b = this.endMap.get(a!);
+      return new Slot(a!, b!);
+    } else {
+      return undefined;
+    }
   }
 
   /** @inheritdoc */
   public tasks(): ReadonlySet<Task> {
-    throw new Error('implement me!');
+    this.checkRep();
+    let result = new Set<Task>();
+    for (let t of this.startMap.keys()) {
+      result.add(t);
+    }
+    return result;
   }
 
   /** @inheritdoc */
   public size(): number {
-    throw new Error('implement me!');
+    this.checkRep();
+    return this.startMap.size;
   }
 
   /** @inheritdoc */
   public toString(): string {
     // TODO: return a human-readable string like "Schedule { A=[540,630), B=[720,780) }"
-    throw new Error('implement me!');
+    let result: string = 'Schedule { '
+    for (let [t, a] of this.startMap.entries()) {
+      let b = this.endMap.get(a);
+      result += '${t.toString()}=[${a},${b}), ';
+    }
+    result += '}';
+    return result;
   }
 }
 

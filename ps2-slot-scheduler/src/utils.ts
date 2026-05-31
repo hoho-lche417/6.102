@@ -16,6 +16,7 @@
  */
 
 import assert from 'assert';
+import {Slot} from './schedule';
 
 // ─── Provided utilities ───────────────────────────────────────────────────────
 
@@ -51,4 +52,6 @@ export function assertApproxEqual(
 //  * Returns true iff two slots have the same start and end.
 //  * ...
 //  */
-// export function slotsEqual(a: Slot, b: Slot): boolean { ... }
+export function slotsEqual(a: Slot, b: Slot): boolean {
+  return a.start == b.start && a.end == b.end;
+}
