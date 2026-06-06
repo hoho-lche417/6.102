@@ -94,7 +94,7 @@ export class Variable implements MemeExpression {
   // RI: name must match [a-zA-Z_][a-zA-Z0-9_]*
   // SRE: name is private and readonly
 
-  public constructor(readonly name: string) {
+  public constructor(private readonly name: string) {
     this.checkRep();
   }
 
