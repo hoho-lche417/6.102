@@ -1,0 +1,17 @@
+{
+  "name": "formula-evaluator",
+  "version": "1.0.0",
+  "description": "Equivalent of MIT 6.102 PS3: Recursive Data Types & Parsing",
+  "scripts": {
+    "test": "mocha",
+    "coverage": "c8 mocha"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.0",
+    "@types/node": "^20.0.0",
+    "c8": "^9.0.0",
+    "mocha": "^10.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}
