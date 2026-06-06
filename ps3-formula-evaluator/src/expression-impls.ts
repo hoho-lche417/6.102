@@ -49,9 +49,9 @@ export class Number implements MemeExpression {
   //   value: the numeric value
   // AF: represents the numeric literal value
   // RI: value is a finite number
-  // SRE: value is readonly and immutable
+  // SRE: value is private and readonly
 
-  public constructor(readonly value: number) {
+  public constructor(private readonly value: number) {
     this.checkRep();
   }
 
@@ -61,12 +61,19 @@ export class Number implements MemeExpression {
     }
   }
 
+  /** @inheritdoc */
   public toString(): string {
-    throw new Error('implement me! (Problem 1)');
+    this.checkRep();
+    return this.value.toString();
   }
 
+  /** @inheritdoc */
   public equalValue(other: unknown): boolean {
-    throw new Error('implement me! (Problem 1)');
+    this.checkRep();
+    if (other instanceof Number && other.value === this.value) {
+      return true;
+    }
+    return false;
   }
 }
 
