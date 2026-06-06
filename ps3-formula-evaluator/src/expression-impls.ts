@@ -88,6 +88,12 @@ export class Number implements MemeExpression {
  * Variable names must match [a-zA-Z_][a-zA-Z0-9_]*
  */
 export class Variable implements MemeExpression {
+  // Rep:
+  //   name: the variable name
+  // AF: represents the variable with name, which can take any numeric values
+  // RI: name must match [a-zA-Z_][a-zA-Z0-9_]*
+  // SRE: name is private and readonly
+
   public constructor(readonly name: string) {
     this.checkRep();
   }
@@ -103,11 +109,16 @@ export class Variable implements MemeExpression {
   }
 
   public toString(): string {
-    throw new Error('implement me! (Problem 1)');
+    this.checkRep();
+    return this.name;
   }
 
   public equalValue(other: unknown): boolean {
-    throw new Error('implement me! (Problem 1)');
+    this.checkRep();
+    if (other instanceof Variable && other.name === this.name) {
+      return true;
+    }
+    return false;
   }
 }
 
