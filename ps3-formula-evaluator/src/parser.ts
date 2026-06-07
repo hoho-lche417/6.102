@@ -45,27 +45,27 @@ import { Parser, ParseTree, compile } from "parserlib";
 
 const grammar: string = `
   @skip whitespace {
-      expression := term (addop term)*
-      addop := '+' | '-'
+      expression ::= term (addop term)*;
+      addop ::= '+' | '-';
 
-      term := factor (mulop factor)*
-      mulop := '*' | '/'
+      term ::= factor (mulop factor)*;
+      mulop ::= '*' | '/';
 
-      factor := unary ('^' factor)?
+      factor ::= unary ('^' factor)?;
 
-      unary := '-' unary
-            | base
+      unary ::= '-' unary
+            | base;
 
-      base := number
+      base ::= number
             | variable
             | function
-            | '(' expression ')'
+            | '(' expression ')';
 
-      function := ('sin' | 'cos' | 'sqrt' | 'abs') '(' expression ')'
+      function ::= ('sin' | 'cos' | 'sqrt' | 'abs') '(' expression ')';
   }  
-  number       := [0-9]+ ('.' [0-9]+)?
-  variable     := [a-zA-Z_][a-zA-Z0-9_]*  
-  whitespace ::= [ \\t\\r\\n]+;  
+  number       ::= [0-9]+ ('.' [0-9]+)?;
+  variable     ::= [a-zA-Z_][a-zA-Z0-9_]*;  
+  whitespace   ::= [ \\t\\r\\n]+;  
   `;
 
 enum FormulaGrammar {
@@ -105,7 +105,7 @@ function makeAbstractSyntaxTree(parseTree: ParseTree<FormulaGrammar>): MemeExpre
             const rhsNode =
                 children[i + 1] ?? assert.fail("missing rhs");
 
-            const op = opNode.text;
+            const op = opNode.text.trim();
 
             result = new BinaryOp(
                 result,
@@ -132,7 +132,7 @@ function makeAbstractSyntaxTree(parseTree: ParseTree<FormulaGrammar>): MemeExpre
             const rhsNode =
                 children[i + 1] ?? assert.fail("missing rhs");
 
-            const op = opNode.text;
+            const op = opNode.text.trim();
 
             result = new BinaryOp(
                 result,
@@ -169,7 +169,7 @@ function makeAbstractSyntaxTree(parseTree: ParseTree<FormulaGrammar>): MemeExpre
 
         if (children.length === 1) {
             return makeAbstractSyntaxTree(children[0]!);
-        }
+        } 
 
         return new UnaryOp(
             '-',
@@ -195,7 +195,7 @@ function makeAbstractSyntaxTree(parseTree: ParseTree<FormulaGrammar>): MemeExpre
         const arg =
             makeAbstractSyntaxTree(exprChild);
 
-        const text = parseTree.text!;
+        const text = parseTree.text.trim()!;
 
         let fn: string;
 

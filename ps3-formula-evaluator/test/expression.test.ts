@@ -297,7 +297,7 @@ describe('Problem 2: parse()', () => {
   it('parse() — function call', () => {
     const expr = parse('sin(x)');
     assert.ok(expr instanceof FunctionCall);
-    assert.strictEqual((expr as any).name, 'sin');
+    assert.strictEqual((expr as any).toString(), 'sin(x)');
   });
 
   // Add more tests for unary operators, nested functions, etc...
