@@ -259,25 +259,41 @@ export class UnaryOp implements MemeExpression {
  * Arguments must be a non-empty array.
  */
 export class FunctionCall implements MemeExpression {
-  public constructor(readonly name: string, readonly args: readonly MemeExpression[]) {
+  // Rep:
+  //   functionName: the name of the function 
+  //   args: the list of arguments, each of type MemeExpression
+  // AF: represents functionName(arguments)
+  // RI: the valid functions are "sin", "cos", "sqrt", "abs"
+  // SRE: all instance variables are private and readonly
+
+  public constructor(readonly functionName: string, readonly args: readonly MemeExpression[]) {
     this.checkRep();
   }
 
   private checkRep(): void {
     const validFunctions = ['sin', 'cos', 'sqrt', 'abs'];
-    if (!validFunctions.includes(this.name)) {
-      throw new Error(`invalid function: ${this.name}`);
+    if (!validFunctions.includes(this.functionName)) {
+      throw new Error(`invalid function: ${this.functionName}`);
     }
     if (this.args.length === 0) {
       throw new Error('function call must have at least one argument');
     }
   }
 
+  /** @inheritdoc */
   public toString(): string {
-    throw new Error('implement me! (Problem 1)');
+    this.checkRep();
+    return this.functionName + '(' + this.args[0].toString() + ')';
   }
 
+  /** @inheritdoc */
   public equalValue(other: unknown): boolean {
-    throw new Error('implement me! (Problem 1)');
+    this.checkRep();
+    if (other instanceof FunctionCall &&
+      other.toString() === this.toString()
+    ) {
+      return true;
+    }
+    return false;
   }
 }

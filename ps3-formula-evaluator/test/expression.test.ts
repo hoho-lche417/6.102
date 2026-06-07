@@ -115,15 +115,15 @@ describe('Problem 1: toString()', () => {
   });
 
   it('FunctionCall.toString() — simple function', () => {
-    const expr = new FunctionCall('sin', new Variable('x'));
-
+    const expr = new FunctionCall('sin', [new Variable('x')]);
+    console.log(expr.toString());
     assert.strictEqual(expr.toString(), 'sin(x)');
   });
 
   it('FunctionCall.toString() — nested expression argument', () => {
       const expr = new FunctionCall(
           'sqrt',
-          new BinaryOp(new Number(2), '+', new Number(3))
+          [new BinaryOp(new Number(2), '+', new Number(3))]
       );
 
       const str = expr.toString();
@@ -212,22 +212,22 @@ describe('Problem 1: equalValue()', () => {
   });
 
   it('FunctionCall.equalValue() — same function and argument', () => {
-    const e1 = new FunctionCall('sin', new Variable('x'));
-    const e2 = new FunctionCall('sin', new Variable('x'));
+    const e1 = new FunctionCall('sin', [new Variable('x')]);
+    const e2 = new FunctionCall('sin', [new Variable('x')]);
 
     assert.strictEqual(e1.equalValue(e2), true);
   });
 
   it('FunctionCall.equalValue() — different function names', () => {
-      const e1 = new FunctionCall('sin', new Variable('x'));
-      const e2 = new FunctionCall('cos', new Variable('x'));
+      const e1 = new FunctionCall('sin', [new Variable('x')]);
+      const e2 = new FunctionCall('cos', [new Variable('x')]);
 
       assert.strictEqual(e1.equalValue(e2), false);
   });
 
   it('FunctionCall.equalValue() — different arguments', () => {
-      const e1 = new FunctionCall('sin', new Variable('x'));
-      const e2 = new FunctionCall('sin', new Variable('y'));
+      const e1 = new FunctionCall('sin', [new Variable('x')]);
+      const e2 = new FunctionCall('sin', [new Variable('y')]);
 
       assert.strictEqual(e1.equalValue(e2), false);
   });
