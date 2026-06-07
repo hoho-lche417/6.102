@@ -53,8 +53,9 @@ const grammar: string = `
 
       factor ::= unary ('^' factor)?;
 
-      unary ::= '-' unary
+      unary ::= negop unary
             | base;
+      negop ::= '-';
 
       base ::= number
             | variable
@@ -69,7 +70,7 @@ const grammar: string = `
   `;
 
 enum FormulaGrammar {
-    Expression, Addop, Term, Factor, Mulop, Unary, Base, Function, Number, Variable, Whitespace
+    Expression, Addop, Term, Factor, Mulop, Unary, Negop, Base, Function, Number, Variable, Whitespace
   }
 
 export function parseExpression(input: string): MemeExpression {
@@ -173,7 +174,7 @@ function makeAbstractSyntaxTree(parseTree: ParseTree<FormulaGrammar>): MemeExpre
 
         return new UnaryOp(
             '-',
-            makeAbstractSyntaxTree(children[0]!)
+            makeAbstractSyntaxTree(children[1]!)
         );
     }
 
@@ -222,6 +223,7 @@ function makeAbstractSyntaxTree(parseTree: ParseTree<FormulaGrammar>): MemeExpre
 
     case FormulaGrammar.Addop:
     case FormulaGrammar.Mulop:
+    case FormulaGrammar.Negop:
     case FormulaGrammar.Whitespace:
         assert.fail("operator node should be handled by parent");
 
