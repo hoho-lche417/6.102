@@ -116,7 +116,7 @@ describe('Problem 1: toString()', () => {
 
   it('FunctionCall.toString() — simple function', () => {
     const expr = new FunctionCall('sin', [new Variable('x')]);
-    console.log(expr.toString());
+    
     assert.strictEqual(expr.toString(), 'sin(x)');
   });
 
@@ -234,9 +234,10 @@ describe('Problem 1: equalValue()', () => {
 
   it('equalValue() — Number and Variable are not equal', () => {
     const n = new Number(5);
-    const v = new Variable('5');
+    const v = new Variable('number_5');
 
     assert.strictEqual(n.equalValue(v), false);
+    assert.strictEqual(v.equalValue(n), false);
   });
 
 });
