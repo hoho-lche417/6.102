@@ -209,6 +209,13 @@ export class BinaryOp implements MemeExpression {
  * Valid operators: "-" (negation)
  */
 export class UnaryOp implements MemeExpression {
+  // Rep:
+  //   op: the operation 
+  //   operand: the operand
+  // AF: represents the expression op operand
+  // RI: the valid operations is only '-'
+  // SRE: all instance variables are private and readonly
+
   public constructor(readonly op: string, readonly operand: MemeExpression) {
     this.checkRep();
   }
@@ -219,12 +226,25 @@ export class UnaryOp implements MemeExpression {
     }
   }
 
+  /** @inheritdoc */
   public toString(): string {
-    throw new Error('implement me! (Problem 1)');
+    this.checkRep();
+    let operandString = this.operand.toString();
+    if (this.operand instanceof BinaryOp) {
+      operandString = '(' + operandString + ')';
+    }
+    return this.op + operandString;
   }
 
+  /** @inheritdoc */
   public equalValue(other: unknown): boolean {
-    throw new Error('implement me! (Problem 1)');
+    this.checkRep();
+    if (other instanceof UnaryOp &&
+      other.toString() === this.toString()
+    ) {
+      return true;
+    }
+    return false;
   }
 }
 
