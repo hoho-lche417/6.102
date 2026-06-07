@@ -71,6 +71,12 @@ export interface MemeExpression {
    * @returns true iff structurally equal
    */
   equalValue(other: unknown): boolean;
+
+  /**
+   * Return the evaluated expression based on the mapping provided by values
+   * @param values the mapping from variables to numbers
+   */
+  evaluate(values: Map<string, number>): number;
 }
 
 /**
@@ -113,5 +119,5 @@ export function parse(input: string): MemeExpression {
  * @throws Error if the expression references undefined variables or divides by zero
  */
 export function evaluate(expr: MemeExpression, values: Map<string, number>): number {
-  throw new Error('implement me! (Problem 3)');
+  return expr.evaluate(values);
 }

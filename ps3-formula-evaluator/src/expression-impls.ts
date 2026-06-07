@@ -22,6 +22,7 @@
  *   Then add UnaryOp and FunctionCall as you need them.
  */
 
+import assert from 'assert';
 import { MemeExpression } from './expression';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -75,6 +76,11 @@ export class Number implements MemeExpression {
     }
     return false;
   }
+
+  /** @inheritdoc */
+  public evaluate(values: Map<string, number>): number {
+    return this.value;
+  }
 }
 
 /**
@@ -121,6 +127,12 @@ export class Variable implements MemeExpression {
       return true;
     }
     return false;
+  }
+
+  /** @inheritdoc */
+  public evaluate(values: Map<string, number>): number {
+    const value = values.get(this.name) ?? assert.fail("missing values for variables");
+    return value;
   }
 }
 
@@ -197,6 +209,40 @@ export class BinaryOp implements MemeExpression {
     }
     return false;
   }
+
+  /** @inheritdoc */
+  public evaluate(values: Map<string, number>): number {
+    const leftValue = this.left.evaluate(values);
+    const rightValue = this.right.evaluate(values);
+    let result: number;
+    
+    switch(this.op) {
+      case '+':
+        result = leftValue + rightValue;
+        break;
+      case '-':
+        result = leftValue - rightValue;
+        break;
+      case '*':
+        result = leftValue * rightValue;
+        break;
+      case '/':
+        if (rightValue === 0) {
+          throw new Error('Division by zero!')
+        }
+        result = leftValue / rightValue;
+        break;
+      case '^':
+        result = leftValue ** rightValue;
+        break;
+      default:
+        assert.fail(
+            `invalid operator ${this.op}!`
+        );
+    }
+
+    return result;
+  }
 }
 
 /**
@@ -245,6 +291,12 @@ export class UnaryOp implements MemeExpression {
       return true;
     }
     return false;
+  }
+
+  /** @inheritdoc */
+  public evaluate(values: Map<string, number>): number {
+    const operandValue = this.operand.evaluate(values);
+    return -1 * operandValue;
   }
 }
 
@@ -295,5 +347,32 @@ export class FunctionCall implements MemeExpression {
       return true;
     }
     return false;
+  }
+
+  /** @inheritdoc */
+  public evaluate(values: Map<string, number>): number {
+    const argValue = this.args[0].evaluate(values);
+    let result: number;
+    
+    switch(this.functionName) {
+      case 'sin':
+        result = Math.sin(argValue);
+        break;
+      case 'cos':
+        result = Math.cos(argValue);
+        break;
+      case 'sqrt':
+        result = Math.sqrt(argValue);
+        break;
+      case 'abs':
+        result = Math.abs(argValue);
+        break;
+      default:
+        assert.fail(
+            `invalid function ${this.functionName}!`
+        );
+    }
+
+    return result;
   }
 }
