@@ -301,6 +301,40 @@ describe('Problem 2: parse()', () => {
   });
 
   // Add more tests for unary operators, nested functions, etc...
+  it('parse() — unary negation', () => {
+    const expr = parse('-x');
+
+    assert.ok(expr instanceof UnaryOp);
+  });
+
+  it('parse() — double negation', () => {
+    const expr = parse('--x');
+
+    assert.ok(expr instanceof UnaryOp);
+  });
+  
+  it('parse() — nested functions', () => {
+    const expr = parse('sin(cos(x))');
+
+    assert.ok(expr instanceof FunctionCall);
+  });
+
+  it('parse() — exponent is right associative', () => {
+    const expr = parse('2 ^ 3 ^ 4');
+
+    assert.strictEqual((expr as any).op, '^');
+
+    const right = (expr as any).right;
+
+    assert.ok(right instanceof BinaryOp);
+    assert.strictEqual((right as any).op, '^');
+  });
+
+  it('parse() — complex expression', () => {
+    const expr = parse('sqrt(x^2 + y^2)');
+
+    assert.ok(expr instanceof FunctionCall);
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -393,4 +427,79 @@ describe('Problem 3: evaluate()', () => {
   });
 
   // Add more tests for trigonometric functions and edge cases...
+  it('evaluate() — multiple variables', () => {
+    const expr = parse('x + y');
+
+    const result =
+        evaluate(expr, new Map([
+            ['x', 2],
+            ['y', 3]
+        ]));
+
+    assert.strictEqual(result, 5);
+  });
+
+  it('evaluate() — nested expression', () => {
+    const expr = parse('(2 + 3) * 4');
+
+    assert.strictEqual(
+        evaluate(expr, new Map()),
+        20
+    );
+  });
+
+  it('evaluate() — sin(0)', () => {
+    const expr = parse('sin(0)');
+
+    assert.strictEqual(
+        evaluate(expr, new Map()),
+        0
+    );
+  });
+
+  it('evaluate() — cos(0)', () => {
+      const expr = parse('cos(0)');
+
+      assert.strictEqual(
+          evaluate(expr, new Map()),
+          1
+      );
+  });
+
+  it('evaluate() — sin(pi/2)', () => {
+    const expr = parse('sin(x)');
+
+    const result =
+        evaluate(expr, new Map([
+            ['x', Math.PI / 2]
+        ]));
+
+    assert(Math.abs(result - 1) < 1e-10);
+  });
+
+  it('evaluate() — right associative exponentiation', () => {
+    const expr = parse('2 ^ 3 ^ 2');
+
+    assert.strictEqual(
+        evaluate(expr, new Map()),
+        512
+    );
+  });
+
+  it('evaluate() — sqrt(0)', () => {
+    const expr = parse('sqrt(0)');
+
+    assert.strictEqual(
+        evaluate(expr, new Map()),
+        0
+    );
+  });
+
+  it('evaluate() — undefined variable in nested expression throws', () => {
+    const expr = parse('2 + x * 3');
+
+    assert.throws(
+        () => evaluate(expr, new Map())
+    );
+  }); 
 });
