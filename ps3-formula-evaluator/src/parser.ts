@@ -29,6 +29,9 @@
 import { MemeExpression } from './expression';
 import { Number, Variable, BinaryOp, UnaryOp, FunctionCall } from './expression-impls';
 
+import assert from 'assert';
+import { Parser, ParseTree, compile } from "parserlib";
+
 /**
  * Parse a string into a MemeExpression.
  *
@@ -39,15 +42,198 @@ import { Number, Variable, BinaryOp, UnaryOp, FunctionCall } from './expression-
  * @returns the abstract syntax tree for the expression
  * @throws Error if the input is not a valid expression
  */
+
+const grammar: string = `
+  @skip whitespace {
+      expression := term (addop term)*
+      addop := '+' | '-'
+
+      term := factor (mulop factor)*
+      mulop := '*' | '/'
+
+      factor := unary ('^' factor)?
+
+      unary := '-' unary
+            | base
+
+      base := number
+            | variable
+            | function
+            | '(' expression ')'
+
+      function := ('sin' | 'cos' | 'sqrt' | 'abs') '(' expression ')'
+  }  
+  number       := [0-9]+ ('.' [0-9]+)?
+  variable     := [a-zA-Z_][a-zA-Z0-9_]*  
+  whitespace ::= [ \\t\\r\\n]+;  
+  `;
+
+enum FormulaGrammar {
+    Expression, Addop, Term, Factor, Mulop, Unary, Base, Function, Number, Variable, Whitespace
+  }
+
 export function parseExpression(input: string): MemeExpression {
   // Problem 2.1: Write a ParserLib grammar for the language above.
   // Problem 2.2: Use the grammar to parse the input.
   // Problem 2.3: Convert the parse tree to an AST (MemeExpression).
-  //
-  // For now, throw an error:
-  throw new Error('implement me! (Problem 2)');
+  
+  const parser: Parser<FormulaGrammar> = 
+    compile(grammar, FormulaGrammar, FormulaGrammar.Expression);
+
+  const parseTree: ParseTree<FormulaGrammar> = parser.parse(input);
+
+  const expr = makeAbstractSyntaxTree(parseTree);
+
+  return expr;
 }
 
+function makeAbstractSyntaxTree(parseTree: ParseTree<FormulaGrammar>): MemeExpression {
+  switch (parseTree.name) {
+
+    case FormulaGrammar.Expression: {
+        // expression := term (addop term)*
+
+        const children = parseTree.children;
+
+        let result =
+            makeAbstractSyntaxTree(children[0] ?? assert.fail("missing term"));
+
+        for (let i = 1; i < children.length; i += 2) {
+            const opNode =
+                children[i] ?? assert.fail("missing operator");
+
+            const rhsNode =
+                children[i + 1] ?? assert.fail("missing rhs");
+
+            const op = opNode.text;
+
+            result = new BinaryOp(
+                result,
+                op as '+' | '-',
+                makeAbstractSyntaxTree(rhsNode)
+            );
+        }
+
+        return result;
+    }
+
+    case FormulaGrammar.Term: {
+        // term := factor (mulop factor)*
+
+        const children = parseTree.children;
+
+        let result =
+            makeAbstractSyntaxTree(children[0] ?? assert.fail("missing factor"));
+
+        for (let i = 1; i < children.length; i += 2) {
+            const opNode =
+                children[i] ?? assert.fail("missing operator");
+
+            const rhsNode =
+                children[i + 1] ?? assert.fail("missing rhs");
+
+            const op = opNode.text;
+
+            result = new BinaryOp(
+                result,
+                op as '*' | '/',
+                makeAbstractSyntaxTree(rhsNode)
+            );
+        }
+
+        return result;
+    }
+
+    case FormulaGrammar.Factor: {
+        // factor := unary ('^' factor)?
+
+        const children = parseTree.children;
+
+        const left =
+            makeAbstractSyntaxTree(children[0] ?? assert.fail("missing unary"));
+
+        if (children.length === 1) {
+            return left;
+        }
+
+        const right =
+            makeAbstractSyntaxTree(children[1] ?? assert.fail("missing factor"));
+
+        return new BinaryOp(left, '^', right);
+    }
+
+    case FormulaGrammar.Unary: {
+        // unary := '-' unary | base
+
+        const children = parseTree.children;
+
+        if (children.length === 1) {
+            return makeAbstractSyntaxTree(children[0]!);
+        }
+
+        return new UnaryOp(
+            '-',
+            makeAbstractSyntaxTree(children[0]!)
+        );
+    }
+
+    case FormulaGrammar.Base: {
+        // base := number | variable | function | '(' expression ')'
+
+        const child =
+            parseTree.children[0] ?? assert.fail("missing child");
+
+        return makeAbstractSyntaxTree(child);
+    }
+
+    case FormulaGrammar.Function: {
+        // function := ('sin'|'cos'|'sqrt'|'abs') '(' expression ')'
+
+        const exprChild =
+            parseTree.children[0] ?? assert.fail("missing argument");
+
+        const arg =
+            makeAbstractSyntaxTree(exprChild);
+
+        const text = parseTree.text!;
+
+        let fn: string;
+
+        if (text.startsWith("sin")) {
+            fn = "sin";
+        } else if (text.startsWith("cos")) {
+            fn = "cos";
+        } else if (text.startsWith("sqrt")) {
+            fn = "sqrt";
+        } else if (text.startsWith("abs")) {
+            fn = "abs";
+        } else {
+            assert.fail("unknown function");
+        }
+
+        return new FunctionCall(fn, [arg]);
+    }
+
+    case FormulaGrammar.Number:
+        return new Number(parseFloat(parseTree.text as string));
+
+    case FormulaGrammar.Variable:
+        return new Variable(parseTree.text as string);
+
+    case FormulaGrammar.Addop:
+    case FormulaGrammar.Mulop:
+    case FormulaGrammar.Whitespace:
+        assert.fail("operator node should be handled by parent");
+
+    default:
+        assert.fail(
+            `cannot make AST for ${FormulaGrammar[parseTree.name]}`
+        );
+    }
+
+}
+
+`
 /**
  * HINTS FOR USING PARSERLIB:
  *
@@ -80,3 +266,4 @@ export function parseExpression(input: string): MemeExpression {
  *     Walk through this tree and build:
  *       BinaryOp(BinaryOp(a, "+", b), "+", c)
  */
+`

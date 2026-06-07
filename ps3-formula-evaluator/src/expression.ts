@@ -12,6 +12,8 @@
  * READ THIS FILE before implementing expression-impls.ts.
  */
 
+import { parseExpression } from './parser'
+
 /**
  * An immutable, recursive abstract syntax tree representing a mathematical expression.
  *
@@ -94,7 +96,7 @@ export interface MemeExpression {
  * @throws Error if the input is not a valid expression
  */
 export function parse(input: string): MemeExpression {
-  throw new Error('implement me! (Problem 2)');
+  return parseExpression(input);
 }
 
 /**
