@@ -108,11 +108,13 @@ export class Variable implements MemeExpression {
     return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(s);
   }
 
+  /** @inheritdoc */
   public toString(): string {
     this.checkRep();
     return this.name;
   }
 
+  /** @inheritdoc */
   public equalValue(other: unknown): boolean {
     this.checkRep();
     if (other instanceof Variable && other.name === this.name) {
@@ -166,6 +168,7 @@ export class BinaryOp implements MemeExpression {
     return 0;
   }
 
+  /** @inheritdoc */
   public toString(): string {
     this.checkRep();
     let leftOperand = this.left.toString();
@@ -184,6 +187,7 @@ export class BinaryOp implements MemeExpression {
     return leftOperand + ' ' + this.op + ' ' + rightOperand;
   }
 
+  /** @inheritdoc */
   public equalValue(other: unknown): boolean {
     this.checkRep();
     if (other instanceof BinaryOp &&
