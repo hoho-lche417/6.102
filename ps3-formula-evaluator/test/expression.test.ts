@@ -94,6 +94,56 @@ describe('Problem 1: toString()', () => {
   });
 
   // Add more tests for UnaryOp and FunctionCall...
+  it('UnaryOp.toString() — simple negation', () => {
+    const expr = new UnaryOp('-', new Variable('x'));
+    const str = expr.toString();
+
+    assert(str.includes('-'));
+    assert(str.includes('x'));
+  });
+
+  it('UnaryOp.toString() — negated binary expression needs parens', () => {
+      const expr = new UnaryOp(
+          '-',
+          new BinaryOp(new Number(2), '+', new Number(3))
+      );
+
+      const str = expr.toString();
+
+      assert(str.includes('(2'));
+      assert(str.includes('3)'));
+  });
+
+  it('FunctionCall.toString() — simple function', () => {
+    const expr = new FunctionCall('sin', new Variable('x'));
+
+    assert.strictEqual(expr.toString(), 'sin(x)');
+  });
+
+  it('FunctionCall.toString() — nested expression argument', () => {
+      const expr = new FunctionCall(
+          'sqrt',
+          new BinaryOp(new Number(2), '+', new Number(3))
+      );
+
+      const str = expr.toString();
+
+      assert(str.includes('sqrt'));
+      assert(str.includes('2'));
+      assert(str.includes('3'));
+  });
+
+  it('BinaryOp.toString() — exponent binds tighter than multiply', () => {
+    const expr = new BinaryOp(
+        new Number(2),
+        '*',
+        new BinaryOp(new Number(3), '^', new Number(4))
+    );
+
+    const str = expr.toString();
+
+    assert(!str.includes('(3'));
+  });
 });
 
 describe('Problem 1: equalValue()', () => {
@@ -147,6 +197,48 @@ describe('Problem 1: equalValue()', () => {
   });
 
   // Add more tests for UnaryOp and FunctionCall...
+  it('UnaryOp.equalValue() — same operand', () => {
+    const e1 = new UnaryOp('-', new Variable('x'));
+    const e2 = new UnaryOp('-', new Variable('x'));
+
+    assert.strictEqual(e1.equalValue(e2), true);
+  });
+
+  it('UnaryOp.equalValue() — different operand', () => {
+      const e1 = new UnaryOp('-', new Variable('x'));
+      const e2 = new UnaryOp('-', new Variable('y'));
+
+      assert.strictEqual(e1.equalValue(e2), false);
+  });
+
+  it('FunctionCall.equalValue() — same function and argument', () => {
+    const e1 = new FunctionCall('sin', new Variable('x'));
+    const e2 = new FunctionCall('sin', new Variable('x'));
+
+    assert.strictEqual(e1.equalValue(e2), true);
+  });
+
+  it('FunctionCall.equalValue() — different function names', () => {
+      const e1 = new FunctionCall('sin', new Variable('x'));
+      const e2 = new FunctionCall('cos', new Variable('x'));
+
+      assert.strictEqual(e1.equalValue(e2), false);
+  });
+
+  it('FunctionCall.equalValue() — different arguments', () => {
+      const e1 = new FunctionCall('sin', new Variable('x'));
+      const e2 = new FunctionCall('sin', new Variable('y'));
+
+      assert.strictEqual(e1.equalValue(e2), false);
+  });
+
+  it('equalValue() — Number and Variable are not equal', () => {
+    const n = new Number(5);
+    const v = new Variable('5');
+
+    assert.strictEqual(n.equalValue(v), false);
+  });
+
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
