@@ -72,8 +72,10 @@ describe('Problem 1: toString()', () => {
     );
     const str = expr.toString();
     // Verify it doesn't have unnecessary parens around 3*4:
-    assert(!str.includes('(3 * 4)'), 'should not have unnecessary parens around 3*4');
-    assert(!str.includes('(3*4)'), 'should not have unnecessary parens around 3*4');
+    //assert(!str.includes('(3 * 4)'), 'should not have unnecessary parens around 3*4');
+    //assert(!str.includes('(3*4)'), 'should not have unnecessary parens around 3*4');
+    assert(!str.includes('(3'), 'should not have unnecessary parens around 3*4');
+    assert(!str.includes('4)'), 'should not have unnecessary parens around 3*4');
   });
 
   it('BinaryOp.toString() — operator precedence (parens needed)', () => {
@@ -85,8 +87,10 @@ describe('Problem 1: toString()', () => {
       new Number(4)
     );
     const str = expr.toString();
-    assert(str.includes('('), 'should include parens around 2+3');
-    assert(str.includes(')'), 'should include parens around 2+3');
+    //assert(str.includes('('), 'should include parens around 2+3');
+    //assert(str.includes(')'), 'should include parens around 2+3');
+    assert(str.includes('(2'), 'should include parens around 2+3');
+    assert(str.includes('3)'), 'should include parens around 2+3');
   });
 
   // Add more tests for UnaryOp and FunctionCall...

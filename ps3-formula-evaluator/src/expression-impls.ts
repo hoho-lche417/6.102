@@ -137,6 +137,14 @@ export class Variable implements MemeExpression {
  *   when they appear as sub-expressions of higher-precedence operators.
  */
 export class BinaryOp implements MemeExpression {
+  // Rep:
+  //   left: the left operand
+  //   op: the operation 
+  //   right: the right operand
+  // AF: represents the expression left op right
+  // RI: the valid operations include '+', '-', '*', '/', '^'
+  // SRE: all instance variables are private and readonly
+
   public constructor(
     readonly left: MemeExpression,
     readonly op: string,
@@ -146,7 +154,7 @@ export class BinaryOp implements MemeExpression {
   }
 
   private checkRep(): void {
-    if (!['+ ', '-', '*', '/', '^'].includes(this.op)) {
+    if (!['+', '-', '*', '/', '^'].includes(this.op)) {
       throw new Error(`invalid operator: ${this.op}`);
     }
   }
@@ -159,11 +167,31 @@ export class BinaryOp implements MemeExpression {
   }
 
   public toString(): string {
-    throw new Error('implement me! (Problem 1)');
+    this.checkRep();
+    let leftOperand = this.left.toString();
+    let rightOperand = this.right.toString();
+
+    if (this.left instanceof BinaryOp && 
+      this.precedence(this.left.op) < this.precedence(this.op)) {
+        leftOperand = '(' + leftOperand + ')'
+      }
+
+    if (this.right instanceof BinaryOp && 
+      this.precedence(this.right.op) <= this.precedence(this.op)) {
+        rightOperand = '(' + rightOperand + ')'
+      }
+
+    return leftOperand + ' ' + this.op + ' ' + rightOperand;
   }
 
   public equalValue(other: unknown): boolean {
-    throw new Error('implement me! (Problem 1)');
+    this.checkRep();
+    if (other instanceof BinaryOp &&
+      other.toString() == this.toString()
+    ) {
+      return true;
+    }
+    return false;
   }
 }
 
