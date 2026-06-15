@@ -17,7 +17,9 @@
  */
 
 import express from 'express';
+import { Request, Response } from 'express';
 import { TaskQueue } from './queue';
+import { StatusCodes } from 'http-status-codes';
 
 /**
  * Create and start an HTTP server for the task queue.
@@ -41,8 +43,18 @@ export function createServer(queue: TaskQueue, port: number): void {
    *
    * Problem 2.2: implement
    */
-  app.post('/enqueue', (req, res) => {
-    throw new Error('implement me! (Problem 2.2)');
+  app.post('/enqueue', (req: Request, res: Response) => {
+    const id = req.params['id'];
+    const desc = req.params['desc']
+
+    if (id === null || desc === null) {
+      console.log("wrong parameters from client!");
+      return;
+    }
+
+    //console.log(id) // undefined?
+    queue.enqueue(id[0], desc[0]);
+    res.status(StatusCodes.OK).type('text').send(StatusCodes.OK);
   });
 
   /**
@@ -50,8 +62,13 @@ export function createServer(queue: TaskQueue, port: number): void {
    *
    * Problem 2.3: implement
    */
-  app.get('/peek', (req, res) => {
-    throw new Error('implement me! (Problem 2.3)');
+  app.get('/peek', (req: Request, res: Response) => {
+    const task = queue.peek();
+    if (task === undefined) {
+      console.log("no task yet!");
+      return;
+    }
+    res.status(StatusCodes.OK).type('text').send(`${task.id}, ${task.status}`);
   });
 
   /**
@@ -59,8 +76,17 @@ export function createServer(queue: TaskQueue, port: number): void {
    *
    * Problem 3.3: implement asynchronously
    */
-  app.post('/dequeue', async (req, res) => {
-    throw new Error('implement me! (Problem 3.3)');
+  app.post('/dequeue', async (req: Request, res: Response) => {
+    const url = new URL(req.url);
+    const workerID = url.searchParams.get("worker"); 
+
+    if (workerID === null) {
+      console.log("wrong parameters from client!");
+      return;
+    }
+
+    queue.dequeueSynchronous(workerID);
+    res.status(StatusCodes.OK).type('text').send(`${queue.peek()?.id} dequeued`);
   });
 
   /**
@@ -68,8 +94,20 @@ export function createServer(queue: TaskQueue, port: number): void {
    *
    * Problem 2.4: implement
    */
-  app.post('/complete', (req, res) => {
-    throw new Error('implement me! (Problem 2.4)');
+  app.post('/complete', (req: Request, res: Response) => {
+    const url = new URL(req.url);
+    const taskID = url.searchParams.get("task"); 
+    const workerID = url.searchParams.get("worker"); 
+    const result = url.searchParams.get("result"); 
+
+    if (taskID === null || workerID === null || result === null) {
+      console.log("wrong parameters from client!");
+      return;
+    }
+    
+    queue.complete(taskID, workerID, result);
+    res.status(StatusCodes.OK).type('text')
+      .send(`${taskID} completed by ${workerID}: ${result}`);
   });
 
   /**
@@ -77,8 +115,20 @@ export function createServer(queue: TaskQueue, port: number): void {
    *
    * Problem 2.5: implement
    */
-  app.post('/fail', (req, res) => {
-    throw new Error('implement me! (Problem 2.5)');
+  app.post('/fail', (req: Request, res: Response) => {
+    const url = new URL(req.url);
+    const taskID = url.searchParams.get("task"); 
+    const workerID = url.searchParams.get("worker"); 
+    const reason = url.searchParams.get("reason"); 
+
+    if (taskID === null || workerID === null || reason === null) {
+      console.log("wrong parameters from client!");
+      return;
+    }
+    
+    queue.fail(taskID, workerID, reason);
+    res.status(StatusCodes.OK).type('text')
+      .send(`${taskID} failed by ${workerID}: ${reason}`);
   });
 
   /**
@@ -86,8 +136,18 @@ export function createServer(queue: TaskQueue, port: number): void {
    *
    * Problem 2.6: implement
    */
-  app.get('/task', (req, res) => {
-    throw new Error('implement me! (Problem 2.6)');
+  app.get('/task', (req: Request, res: Response) => {
+    const url = new URL(req.url);
+    const id = url.searchParams.get("id"); 
+
+    if (id === null) {
+      console.log("wrong parameters from client!");
+      return;
+    }
+
+    const task = queue.getTask(id)
+    res.status(StatusCodes.OK).type('text')
+      .send(`${id} ${task?.status}`);
   });
 
   /**
@@ -118,8 +178,9 @@ export function createServer(queue: TaskQueue, port: number): void {
    *
    * Problem 2.7: implement (helper endpoint to see full queue state)
    */
-  app.get('/state', (req, res) => {
-    throw new Error('implement me! (Problem 2.7)');
+  app.get('/state', (req: Request, res: Response) => {
+    res.status(StatusCodes.OK).type('text')
+      .send(`${queue.toString()}`);
   });
 
   app.listen(port, () => {
