@@ -60,7 +60,8 @@ export class TaskQueue {
    * @throws Error if a task with this id already exists
    */
   public enqueue(id: string, description: string): void {
-    throw new Error('implement me! (Problem 1.1)');
+    this.tasks.push(Task.newPending(id, description));
+    this.checkRep();
   }
 
   /**
@@ -71,7 +72,7 @@ export class TaskQueue {
    * @returns the next pending task, or undefined if queue is empty
    */
   public peek(): Task | undefined {
-    throw new Error('implement me! (Problem 1.2)');
+    return this.tasks[0];
   }
 
   /**
@@ -82,7 +83,13 @@ export class TaskQueue {
    * @returns count of pending tasks
    */
   public length(): number {
-    throw new Error('implement me! (Problem 1.3)');
+    let pendingCount: number = 0;
+    for (const t of this.tasks) {
+      if (t.status == "pending") {
+        ++pendingCount;
+      }
+    }
+    return pendingCount;
   }
 
   /**
@@ -123,7 +130,25 @@ export class TaskQueue {
    * @throws Error if task not found or not claimed by this worker
    */
   public complete(taskId: string, workerId: string, result: string): void {
-    throw new Error('implement me! (Problem 1.4)');
+    let ids: Array<string> = this.tasks.map((task: Task) => task.id);
+    if (!ids.includes(taskId)) {
+      throw new Error('task not found!');
+    }
+
+    let i = 0;
+    for (; i < this.length(); ++i) {
+      if (this.tasks[i].id == taskId) {
+        break;
+      }
+    }
+    if (this.tasks[i]!.worker !== workerId) {
+      throw new Error('task not not claimed by this worker!');
+    }
+
+    this.tasks[i] = this.tasks[i]!
+      .withStatus("completed", workerId, result);
+
+    this.checkRep();
   }
 
   /**
@@ -137,7 +162,25 @@ export class TaskQueue {
    * @throws Error if task not found or not claimed by this worker
    */
   public fail(taskId: string, workerId: string, reason: string): void {
-    throw new Error('implement me! (Problem 1.5)');
+    let ids: Array<string> = this.tasks.map((task: Task) => task.id);
+    if (!ids.includes(taskId)) {
+      throw new Error('task not found!');
+    }
+
+    let i = 0;
+    for (; i < this.length(); ++i) {
+      if (this.tasks[i].id == taskId) {
+        break;
+      }
+    }
+    if (this.tasks[i]!.worker !== workerId) {
+      throw new Error('task not not claimed by this worker!');
+    }
+
+    this.tasks[i] = this.tasks[i]!
+      .withStatus("failed", workerId, reason);
+
+    this.checkRep();
   }
 
   /**
@@ -149,7 +192,11 @@ export class TaskQueue {
    * @returns the task, or undefined if not found
    */
   public getTask(taskId: string): Task | undefined {
-    throw new Error('implement me! (Problem 1.6)');
+    for (const task of this.tasks) {
+      if (task.id === taskId) {
+        return task;
+      }
+    }
   }
 
   /**
@@ -228,6 +275,10 @@ export class TaskQueue {
    * @returns string showing all tasks and their status
    */
   public toString(): string {
-    throw new Error('implement me! (Problem 1.7)');
+    let result: string = "tasks:\n";
+    for (const task of this.tasks) {
+      result += `${task.id}, ${task.status}\n`;
+    }
+    return result;
   }
 }
