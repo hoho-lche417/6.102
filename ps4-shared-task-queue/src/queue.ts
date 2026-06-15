@@ -116,7 +116,8 @@ export class TaskQueue {
    * @returns the claimed task, or undefined if queue is empty
    */
   public dequeueSynchronous(workerId: string): Task | undefined {
-    throw new Error('implement me! (Problem 3.2)');
+    this.tasks[0] = this.tasks[0].withStatus("claimed", workerId);
+    return this.tasks[0];
   }
 
   /**
