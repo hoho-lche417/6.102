@@ -60,6 +60,7 @@ export class TaskQueue {
    * @throws Error if a task with this id already exists
    */
   public enqueue(id: string, description: string): void {
+    this.checkRep();
     this.tasks.push(Task.newPending(id, description));
     this.checkRep();
   }
@@ -72,6 +73,7 @@ export class TaskQueue {
    * @returns the next pending task, or undefined if queue is empty
    */
   public peek(): Task | undefined {
+    this.checkRep();
     return this.tasks[0];
   }
 
@@ -83,6 +85,7 @@ export class TaskQueue {
    * @returns count of pending tasks
    */
   public length(): number {
+    this.checkRep();
     let pendingCount: number = 0;
     for (const t of this.tasks) {
       if (t.status == "pending") {
@@ -116,6 +119,7 @@ export class TaskQueue {
    * @returns the claimed task, or undefined if queue is empty
    */
   public dequeueSynchronous(workerId: string): Task | undefined {
+    this.checkRep();
     this.tasks[0] = this.tasks[0].withStatus("claimed", workerId);
     return this.tasks[0];
   }
@@ -131,6 +135,7 @@ export class TaskQueue {
    * @throws Error if task not found or not claimed by this worker
    */
   public complete(taskId: string, workerId: string, result: string): void {
+    this.checkRep();
     let ids: Array<string> = this.tasks.map((task: Task) => task.id);
     if (!ids.includes(taskId)) {
       throw new Error('task not found!');
@@ -163,6 +168,7 @@ export class TaskQueue {
    * @throws Error if task not found or not claimed by this worker
    */
   public fail(taskId: string, workerId: string, reason: string): void {
+    this.checkRep();
     let ids: Array<string> = this.tasks.map((task: Task) => task.id);
     if (!ids.includes(taskId)) {
       throw new Error('task not found!');
@@ -276,6 +282,7 @@ export class TaskQueue {
    * @returns string showing all tasks and their status
    */
   public toString(): string {
+    this.checkRep();
     let result: string = "tasks:\n";
     for (const task of this.tasks) {
       result += `${task.id}, ${task.status}\n`;
